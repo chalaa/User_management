@@ -18,27 +18,36 @@ Make sure the following are installed on your system:
 
 ## 🧰 Full Setup Instructions (Copy & Paste Friendly)
 
-```bash
 # Clone the repository
+```bash
 git clone https://github.com/chalaa/User_management.git
 cd User_management
-
+```
 # Install PHP dependencies
+```bash
 composer install
-
+```
 # Copy the environment configuration
+```bash
 cp .env.example .env
-
+```
 # Generate the application key
+```bash
 php artisan key:generate
-
+```
 # Set up your .env database values manually here before proceeding
 
-# Run database migrations and seeders
-php artisan migrate --seed
-
-# If using JWT Auth package (e.g. tymon/jwt-auth), generate JWT secret
+# generate JWT secrete key
+```bash
 php artisan jwt:secret
+```
+
+# Run database migrations and seeders
+```bash
+php artisan migrate --seed
+```
 
 # Start the Laravel development server
+```bash
 php artisan serve
+```
