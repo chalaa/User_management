@@ -29,13 +29,10 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Authenticate user
-        $token = JWTAuth::fromUser($user);
-
         return response()->json([
-                'access_token' => $token,
-                'type' => 'bearer'
-        ], 200);
+            'message' => 'User created successfully',
+            'user' => $user
+        ], 201);
     }
 
 
