@@ -23,4 +23,12 @@ Route::middleware(['auth:api'])->group(function () {
     // roles routes
     Route::get('/roles', [RoleController::class, 'index'])->middleware('permission:read-roles');
     Route::get('/roles/{id}', [RoleController::class, 'show'])->middleware('permission:read-roles');
+    Route::post('/roles', [RoleController::class, 'store'])->middleware('permission:create-roles');
+    Route::put('/roles/{id}', [RoleController::class, 'update'])->middleware('permission:update-roles');
+    Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->middleware('permission:delete-roles');
+
+    // Assign permissions to roles
+    Route::post('/roles/{id}/assign', [RoleController::class, 'assignPermission'])->middleware('permission:assign-permissions');
+    Route::post('/roles/{id}/revoke', [RoleController::class, 'assignPermission'])->middleware('permission:assign-permissions');
+    
 });
