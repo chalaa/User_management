@@ -5,9 +5,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Routing\Exceptions\RouteNotFoundException;
-
-
+use Spatie\Permission\Exceptions\UnauthorizedException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -29,7 +28,23 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'error' => 'Unauthorized',
-                    'message' => 'User does not have the right permissions.'
+                    'message' => 'User is not logged in please login first.'
+                ], 401);
+            }
+        });
+        $exceptions->render(function (NotFoundHttpException $e, $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'error' => 'Not Found',
+                    'message' => 'The requested route does not exist.'
+                ], 404);
+            }
+        });
+        $exceptions->render(function (UnauthorizedException $e, $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'error' => 'Forbidden',
+                    'message' => 'You do not have permission to access this resource.'
                 ], 403);
             }
         });

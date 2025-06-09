@@ -17,7 +17,7 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         //create admin role
-        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'api']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
 
         // sync all permissions to admin role
         $adminRole->syncPermissions(Permission::all());

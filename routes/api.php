@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Middleware\JwtMiddleware;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 
 Route::post('/register', [AuthController::class, 'register'])->name('register.user');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -29,4 +30,16 @@ Route::middleware(['auth:api'])->group(function () {
     // Assign and revoke permissions to roles
     Route::post('/roles/{id}/assign', [RoleController::class, 'assignPermission'])->middleware('permission:assign-permissions');
     Route::post('/roles/{id}/revoke', [RoleController::class, 'revokePermission'])->middleware('permission:assign-permissions');
+
+    // get user info
+    Route::get('/users', [UserController::class, 'index'])->middleware('permission:read-users');
+    Route::get('/users/{id}', [UserController::class, 'show'])->middleware('permission:read-users');
+
+    //Assign and revoke role to user
+    Route::post('roles/users/{id}/assign', [UserController::class, 'assignRole'])->middleware('permission:assign-roles');
+    Route::post('roles/users/{id}/revoke', [UserController::class, 'revokeRole'])->middleware('permission:assign-roles');
+
+    // Assign and revoke permissions to user
+    Route::post('permissions/users/{id}/assign', [UserController::class, 'assignPermission'])->middleware('permission:assign-permissions');
+    Route::post('permissions/users/{id}/revoke', [UserController::class, 'revokePermission'])->middleware('permission:assign-permissions');
 });

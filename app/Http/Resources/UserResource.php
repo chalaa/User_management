@@ -20,8 +20,8 @@ class UserResouce extends JsonResource
             'email' => $this->email,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'roles' => RoleResource::collection($this->whenLoaded('roles')),
-            'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
+            'roles' => RoleResource::collection($this->roles),
+            'permissions' => PermissionResource::collection($this->permissions),
         ];
     }
 }
