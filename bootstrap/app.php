@@ -4,6 +4,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\JwtMiddleware;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Routing\Exceptions\RouteNotFoundException;
+
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,5 +24,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'error' => 'Unauthorized',
+                    'message' => 'User does not have the right permissions.'
+                ], 403);
+            }
+        });
+        
     })->create();

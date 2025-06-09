@@ -7,13 +7,13 @@ use App\Http\Middleware\JwtMiddleware;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 
-Route::post('/register', [AuthController::class, 'register'])->name('register_user');
-Route::post('/login', [AuthController::class, 'login'])->name('login_user');
-Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh_token');
+Route::post('/register', [AuthController::class, 'register'])->name('register.user');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh.token');
 
 Route::middleware(['auth:api'])->group(function () {
     // Logout route
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout_user');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout.    user');
 
     // Permissions routes
     Route::get('/permissions', [PermissionController::class, 'index'])->middleware('permission:read-permissions');
