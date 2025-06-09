@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Validation\ValidationException;  
 
 
 class AuthController extends Controller
@@ -16,38 +17,52 @@ class AuthController extends Controller
 
     // Register a new user (optional)
     public function register(Request $request)
-    {
-        $request->validate([
-            'name' => ['required', 'string'],
-            'email' => ['required', 'string', 'email','unique:users,email'],
-            'password' => ['required', 'string', 'confirmed', 'min:8']
-        ]);
+    {   
+        
+        try {
+            $request->validate([
+                'name' => ['required', 'string'],
+                'email' => ['required', 'string', 'email', 'unique:users,email'],
+                'password' => ['required', 'string', 'confirmed', 'min:8']
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
-        return response()->json([
-            'message' => 'User created successfully',
-            'user' => $user
-        ], 201);
+            return response()->json([
+                'message' => 'User created successfully',
+                'user' => $user
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $e->errors()
+            ], 422);
+        }
+        catch (\Exception $e) {
+            return response()->json([
+                'error' => 'An error occurred while creating the user',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
 
     //login function 
     public function login(Request $request)
     {
-        // validate the request
-        $request->validate([
-            "email" => ["required", "email"],
-            "password" => ["required", "string", 'min:8'],
-        ]);
-
-        $credentials = $request->only('email', 'password');
-
+        
         try {
+            // validate the request
+            $request->validate([
+                "email" => ["required", "email"],
+                "password" => ["required", "string", 'min:8'],
+            ]);
+
+            $credentials = $request->only('email', 'password');
             if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
@@ -59,6 +74,17 @@ class AuthController extends Controller
             return response()->json(compact('token','type'));
         } catch (JWTException $e) {
             return response()->json(['error' => 'Could not create token'], 500);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $e->errors()
+            ], 422);
+        }
+        catch (\Exception $e) {
+            return response()->json([
+                'error' => 'An error occurred while logging in',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
