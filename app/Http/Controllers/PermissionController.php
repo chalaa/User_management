@@ -10,8 +10,18 @@ class PermissionController extends Controller
 {
     //get all permissions
     public function index()
-    {
-        return PermissionResource::collection(Permission::all());
+    {   
+        try{
+            // Fetch all permissions and return them as a collection
+            return PermissionResource::collection(Permission::all());
+        }
+        catch(\Exception $e){
+            // If an error occurs, return a 500 response with an error message
+            return response()->json([
+                'error' => 'An error occurred while fetching permissions',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // get spesific permission by id and all roles that have this permission
@@ -20,10 +30,14 @@ class PermissionController extends Controller
         try {
             // Attempt to find the permission by ID
             $permission = Permission::with('roles')->findOrFail($id);
-        } catch (\Exception $e) {
-            // If not found, return a 404 response
-            return response()->json(['message' => 'Permission not found'], 404);
+            return new PermissionResource($permission);
+
+        } catch(\Exception $e){
+            // If an error occurs, return a 500 response with an error message
+            return response()->json([
+                'error' => 'An error occurred while fetching the permission',
+                'message' => $e->getMessage()
+            ], 500);
         }
-        return new PermissionResource($permission);
     }
 }
