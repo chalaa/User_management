@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\RoleResource;
 use Spatie\Permission\Models\Role;
+use Illuminate\Validation\ValidationException;  
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class RoleController extends Controller
@@ -14,6 +16,11 @@ class RoleController extends Controller
         try{
             $roles = Role::all();
             return RoleResource::collection($roles);
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'error' => 'Role not found',
+                'message' => 'Role not found'
+            ], 404);
         }
         catch(\Exception $e){
             return response()->json([
@@ -25,11 +32,16 @@ class RoleController extends Controller
 
     // get specific role by id and all permissions that belong to this role
     public function show($id){
-
         try{
             $role = Role::with('permissions')->findOrFail($id);
             return new RoleResource($role);
-        }catch(\Exception $e){
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'error' => 'Role not found',
+                'message' => 'Role not found'
+            ], 404);
+        }
+        catch(\Exception $e){
             return response()->json([
                 'error' => 'An error occurred while fetching roles',
                 'message' => 'An error occurred while fetching roles'
@@ -50,6 +62,12 @@ class RoleController extends Controller
                 'guard_name' => 'api', // Assuming you are using 'api' guard
             ]);
             return new RoleResource($role);
+        }
+        catch(ValidationException $e){
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $e->errors()
+            ], 422);
         }
         catch(\Exception $e){
             return response()->json([
@@ -72,6 +90,18 @@ class RoleController extends Controller
             ]);
             return new RoleResource($role);
         }
+        catch(ValidationException $e){
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $e->errors()
+            ], 422);
+        }
+        catch(ModelNotFoundException $e){
+            return response()->json([
+                'error' => 'Role not found',
+                'message' => 'Role not found'
+            ], 404);
+        }
         catch(\Exception $e){
             return response()->json([
             'error' => 'An error occurred while updating the role',
@@ -87,6 +117,12 @@ class RoleController extends Controller
             $role->delete();
             return response()->json(['message' => 'Role deleted successfully'], 200);
         } 
+        catch(ModelNotFoundException $e){
+            return response()->json([
+                'error' => 'Role not found',
+                'message' => 'Role not found'
+            ], 404);
+        }
         catch (\Exception $e) {
             return response()->json([
                 'error' => 'An error occurred while deleting the role',
@@ -106,6 +142,18 @@ class RoleController extends Controller
             $role = Role::findOrFail($roleId);
             $role->syncPermissions($request->permissions);
             return new RoleResource($role);
+        }
+        catch(ValidationException $e){
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $e->errors()
+            ], 422);
+        }
+        catch(ModelNotFoundException $e){
+            return response()->json([
+                'error' => 'Role not found',
+                'message' => 'Role not found'
+            ], 404);
         }
         catch(\Exception $e){
             return response()->json([
@@ -135,6 +183,17 @@ class RoleController extends Controller
             $role->load('permissions');
 
             return new RoleResource($role);
+            
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $e->errors()
+            ], 422);
+        } catch(ModelNotFoundException $e){
+            return response()->json([
+                'error' => 'Role not found',
+                'message' => 'Role not found'
+            ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'An error occurred while revoking permissions',
